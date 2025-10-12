@@ -8,16 +8,17 @@ This repository contains all configuration and service definitions required to b
 
 ## 🧩 Architecture Overview
 
-The system consists of several containerized services:
+The system consists of following containerized services:
 
-Services:
-Redis: In-memory data store for communication and caching, port: 6379
-Luminaire Service: Handles luminaire command operations and device control, port: 5250
-Scheduler Service: Runs the time-based CCT/Lux schedule from CSV files
-Monitoring Service: Collects and exposes real-time system metrics
-API Service: Central FastAPI server that exposes control APIs, port: 8888
-WebSocket Service: Provides real-time updates and event communication, port: 5001
-WebApp (Nginx): Frontend interface for users, port: 8080
+| Service | Description | Port |
+|----------|--------------|------|
+| **Redis** | In-memory data store for communication and caching | 6379 |
+| **Luminaire Service** | Handles luminaire command operations and device control | 5250 |
+| **Scheduler Service** | Runs the time-based CCT/Lux schedule from CSV files |
+| **Monitoring Service** | Collects and exposes real-time system metrics |
+| **API Service** | Central FastAPI server that exposes control APIs |
+| **WebSocket Service** | Provides real-time updates and event communication | 5001 |
+| **WebApp (Nginx)** | Frontend interface for users | 8080 |
 
 ## ⚙️ Prerequisites
 
