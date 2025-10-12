@@ -28,7 +28,7 @@ The system consists of following containerized services:
 - `config.yaml` file in the project root  
 - `scenes/` folder with CSV schedules
 
-## 🚀 Clone this repository
+## 🚀 Setup and deployment
 ```bash
 git clone https://github.com/nishanthamabati/luminaire-control-deploy.git
 cd luminaire-control-deploy
@@ -36,6 +36,7 @@ cd luminaire-control-deploy
 Start all services: docker compose up -d
 To view logs: docker compose logs -f
 To stop: docker compose down
+---
 
 ## 🌐 Access
 | Component | URL                                                      |
@@ -44,6 +45,5 @@ To stop: docker compose down
 | API       | [http://localhost:8888/docs](http://localhost:8888/docs) |
 
 Notes
-
 All containers share the host network (network_mode: host) for low-latency local communication and follow the Asia/Kolkata timezone. (UTC+05:30)
 Each service auto-restarts on failure (restart: unless-stopped).
