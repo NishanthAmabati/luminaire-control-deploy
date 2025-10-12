@@ -28,6 +28,7 @@ WebApp (Nginx): Frontend interface for users, port: 8080
 - `scenes/` folder with CSV schedules
 
 ## 🚀 Clone this repository
+```bash
 git clone https://github.com/nishanthamabati/luminaire-control-deploy.git
 cd luminaire-control-deploy
 docker-compose up -d
