@@ -13,9 +13,9 @@ The system consists of following containerized services:
 | Service | Description | Port |
 |----------|--------------|------|
 | **Redis** | In-memory data store for communication and caching | 6379 |
-| **Luminaire Service** | Handles luminaire command operations and device control | 5250 |
-| **Scheduler Service** | Runs the time-based CCT/Lux schedule from CSV files |
-| **Monitoring Service** | Collects and exposes real-time system metrics |
+| **Luminaire Service** | Handles luminaire command operations and device control | 5555, 5250 |
+| **Scheduler Service** | Runs the time-based CCT/Lux schedule from CSV files | 6666 |
+| **Monitoring Service** | Collects and exposes real-time system metrics | 7777 |
 | **API Service** | Central FastAPI server that exposes control APIs | 8888 |
 | **WebSocket Service** | Provides real-time updates and event communication | 5001 |
 | **WebApp (Nginx)** | Frontend interface for users | 8080 |
