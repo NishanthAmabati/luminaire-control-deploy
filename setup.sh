@@ -35,8 +35,8 @@ echo "Starting services..."
 docker compose up -d
 
 # Auto-start on reboot
-CRON_CMD="@reboot cd $INSTALL_DIR && /usr/bin/docker compose up -d"
-(crontab -l 2>/dev/null | grep -Fv "$INSTALL_DIR"; echo "$CRON_CMD") | crontab -
+# CRON_CMD="@reboot cd $INSTALL_DIR && /usr/bin/docker compose up -d"
+# (crontab -l 2>/dev/null | grep -Fv "$INSTALL_DIR"; echo "$CRON_CMD") | crontab -
 
 # Success message
 PI_IP=$(hostname -I | awk '{print $1}')
