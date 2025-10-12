@@ -39,10 +39,10 @@ To stop: docker compose down
 ---
 
 ## 🌐 Access
-| Component | URL                                                      |
-| --------- | -------------------------------------------------------- |
-| WebApp    | [http://localhost:8080](http://localhost:8080)           |
-| API       | [http://localhost:8888/docs](http://localhost:8888/docs) |
+| Component | URL                        |
+| --------- | ---------------------------|
+| WebApp    | http://localhost:8080      |
+| API       | http://localhost:8888/docs |
 
 Notes
 All containers share the host network (network_mode: host) for low-latency local communication and follow the Asia/Kolkata timezone. (UTC+05:30)
