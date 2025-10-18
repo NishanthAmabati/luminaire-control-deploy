@@ -58,7 +58,7 @@ PI_IP=$(hostname -I | awk '{print $1}')
 echo
 echo "Deployment complete!"
 echo "Access the web app at: http://$PI_IP:8080 or http://localhost:8080"
-echo "Use '$DOCKER_COMPOSE_CMD logs -f' to view logs"
+
 echo "IMPORTANT: Please **log out and log back in** for the new Docker permissions to take effect."
 echo "For future commands (like 'docker ps'), please **log out and log back in** for the new Docker permissions to take full effect."
 echo "If you don't re-login, you might see 'permission denied' errors.
