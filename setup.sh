@@ -2,45 +2,74 @@
 # setup.sh - Full setup and deployment of Luminaire Control on Raspberry Pi
 # Author: Yagnya Nishanth Ambati
 # Date: 2025-10-12
+# Revision: 2025-10-18 (Fixing Docker permissions)
 
-set -e  # Exit immediately if a command fails
-set -u  # Treat unset variables as errors
+set -e # Exit immediately if a command fails
+set -u # Treat unset variables as errors
 
-# Update system & install prerequisites
-echo "Updating system, installing prerequisites..."
+# variables
+REPO_URL="https://github.com/nishanthamabati/luminaire-control-deploy.git"
+INSTALL_DIR="$HOME/luminaire-control-deploy"
+DOCKER_COMPOSE_CMD="docker compose" # Use modern 'docker compose' syntax
+
+# system update & pre requisites
+echo "Updating system, installing prerequisites (git, curl, wget, docker)..."
 sudo apt update && sudo apt upgrade -y
 sudo apt install -y git curl wget docker.io docker-compose
 
-# Enable and start Docker
+# docker setup
+echo "Setting up Docker permissions and service..."
+
+# Enable and start Docker service
 sudo systemctl enable docker
 sudo systemctl start docker
 
+# Add current user to the 'docker' group to run commands without sudo
+if ! getent group docker | grep -q "\b$USER\b"; then
+    echo "Adding user '$USER' to the 'docker' group. This requires a re-login to take effect."
+    sudo usermod -aG docker "$USER"
+fi
 
-# Clone repository
-REPO_URL="https://github.com/nishanthamabati/luminaire-control-deploy.git"
-INSTALL_DIR="$HOME/luminaire-control-deploy"
-
+# clone repo
+echo "Cloning/pulling repository..."
 if [ -d "$INSTALL_DIR" ]; then
-    echo "Directory exists, pulling latest changes..."
+    echo "Directory exists: $INSTALL_DIR. Pulling latest changes..."
     cd "$INSTALL_DIR"
     git pull
 else
-    echo "Cloning repository..."
+    echo "Cloning repository to $INSTALL_DIR..."
     git clone "$REPO_URL" "$INSTALL_DIR"
     cd "$INSTALL_DIR"
 fi
 
-# Deploy all services
-echo "Starting services..."
-docker-compose up -d
+# deploy services
+echo "Deploying services with Docker Compose..."
 
-# Auto-start on reboot
-# CRON_CMD="@reboot cd $INSTALL_DIR && /usr/bin/docker compose up -d"
+# Use sudo for the first run if the user isn't yet recognized in the docker group.
+# This ensures the daemon connection works without an immediate re-login.
+# The user will be prompted for their password here.
+if groups "$USER" | grep -q '\bdocker\b'; then
+    # Permissions active
+    echo "Docker permissions confirmed. Running as current user: $(whoami)."
+    $DOCKER_COMPOSE_CMD up -d
+else
+    # Permissions not yet active in this session (requires sudo on first run)
+    echo "User '$USER' is not recognized in the 'docker' group yet. Running with sudo."
+    sudo $DOCKER_COMPOSE_CMD up -d
+fi
+
+# --- 5. AUTO-START ON REBOOT (Cron job, commented out for optional use) ---
+# echo "--- 5. Setting up auto-start on reboot (using Cron)..."
+# CRON_CMD="@reboot cd $INSTALL_DIR && $DOCKER_COMPOSE_CMD up -d"
 # (crontab -l 2>/dev/null | grep -Fv "$INSTALL_DIR"; echo "$CRON_CMD") | crontab -
+# echo "Cron job added."
 
-# Success message
+# success message
 PI_IP=$(hostname -I | awk '{print $1}')
 echo
 echo "Deployment complete!"
+echo "IMPORTANT: Please **log out and log back in** for the new Docker permissions to take effect."
+echo "For future commands (like 'docker ps'), please **log out and log back in** for the new Docker permissions to take full effect."
+echo "If you don't re-login, you might see 'permission denied' errors.
 echo "Access the web app at: http://$PI_IP:8080 or http://localhost:8080"
-echo "Use 'docker compose logs -f' to view logs"
+echo "Use '$DOCKER_COMPOSE_CMD logs -f' to view logs"
