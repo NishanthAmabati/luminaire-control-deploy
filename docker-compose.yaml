@@ -11,7 +11,7 @@ services:
     restart: unless-stopped
 
   luminaire-service:
-    image: nishanthambati/luminaire-service:v1.1
+    image: nishanthambati/luminaire-service:v1.1-pi
     container_name: luminaire-service
     volumes:
       - ./config.yaml:/app/config.yaml
@@ -22,7 +22,7 @@ services:
     restart: unless-stopped
 
   scheduler-service:
-    image: nishanthambati/scheduler-service:v1.1
+    image: nishanthambati/scheduler-service:v1.1-pi
     container_name: scheduler-service
     volumes:
       - ./config.yaml:/app/config.yaml
@@ -37,7 +37,7 @@ services:
     restart: unless-stopped
 
   monitoring-service:
-    image: nishanthambati/monitoring-service:v1.1
+    image: nishanthambati/monitoring-service:v1.1-pi
     container_name: monitoring-service
     volumes:
       - ./config.yaml:/app/config.yaml
@@ -48,7 +48,7 @@ services:
     restart: unless-stopped
 
   api-service:
-    image: nishanthambati/api-service:v1.1
+    image: nishanthambati/api-service:v1.1-pi
     container_name: api-service
     volumes:
       - ./config.yaml:/app/config.yaml
@@ -64,7 +64,7 @@ services:
     restart: unless-stopped
 
   websocket-service:
-    image: nishanthambati/websocket-service:v1.1
+    image: nishanthambati/websocket-service:v1.1-pi
     container_name: websocket-service
     volumes:
       - ./config.yaml:/app/config.yaml
@@ -78,7 +78,7 @@ services:
     restart: unless-stopped
 
   webapp:
-    image: nishanthambati/nginx-webapp:v1.0
+    image: nishanthambati/nginx-webapp:v1.0-pi
     container_name: nginx-webapp
     depends_on:
       - websocket-service
