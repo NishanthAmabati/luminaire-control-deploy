@@ -10,7 +10,7 @@ set -u # Treat unset variables as errors
 # variables
 REPO_URL="https://github.com/nishanthamabati/luminaire-control-deploy.git"
 INSTALL_DIR="$HOME/luminaire-control-deploy"
-DOCKER_COMPOSE_CMD="docker-compose"
+DOCKER_COMPOSE_CMD="docker compose"
 
 # system update & pre requisites
 echo "Updating system, installing prerequisites (git, curl, wget, docker)..."
@@ -50,7 +50,7 @@ echo "Deploying services with Docker Compose..."
 # The user will be prompted for their password here.
 if groups "$USER" | grep -q '\bdocker\b'; then
     # Permissions active
-    echo "Docker permissions confirmed. Running as current user: $(whoami)."
+    echo "Docker permissions: OK. Running as current user: $(whoami)."
     $DOCKER_COMPOSE_CMD up -d
 else
     # Permissions not yet active in this session (requires sudo on first run)
