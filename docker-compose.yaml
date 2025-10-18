@@ -1,9 +1,10 @@
+version: '3.8'
 services:
   redis:
     image: redis:7.0
     container_name: redis
     volumes:
-      - redis-data:/data
+      - redis-data:/data # Links to the top-level named volume
     environment:
       - TZ=Asia/Kolkata
     network_mode: host
