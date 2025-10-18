@@ -43,7 +43,7 @@ fi
 
 # deploy services
 echo "Deploying services with Docker Compose..."
-sudo docker compose up -d
+sudo docker-compose up -d
 
 # --- 5. AUTO-START ON REBOOT (Cron job, commented out for optional use) ---
 # echo "--- 5. Setting up auto-start on reboot (using Cron)..."
