@@ -32,7 +32,7 @@ fi
 
 # Deploy all services
 echo "Starting services..."
-docker compose up -d
+docker-compose up -d
 
 # Auto-start on reboot
 # CRON_CMD="@reboot cd $INSTALL_DIR && /usr/bin/docker compose up -d"
