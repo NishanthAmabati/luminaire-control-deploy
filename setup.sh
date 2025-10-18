@@ -43,6 +43,8 @@ fi
 
 # deploy services
 echo "Deploying services with Docker Compose..."
+mkdir -p ./logs ./scenes
+sudo chown -R 1000:1000 ./logs ./scenes
 sudo docker-compose up --detach
 
 # --- 5. AUTO-START ON REBOOT (Cron job, commented out for optional use) ---
