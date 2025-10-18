@@ -10,7 +10,6 @@ set -u # Treat unset variables as errors
 # variables
 REPO_URL="https://github.com/nishanthamabati/luminaire-control-deploy.git"
 INSTALL_DIR="$HOME/luminaire-control-deploy"
-DOCKER_COMPOSE_CMD="docker compose"
 
 # system update & pre requisites
 echo "Updating system, installing prerequisites (git, curl, wget, docker)..."
@@ -44,19 +43,7 @@ fi
 
 # deploy services
 echo "Deploying services with Docker Compose..."
-
-# Use sudo for the first run if the user isn't yet recognized in the docker group.
-# This ensures the daemon connection works without an immediate re-login.
-# The user will be prompted for their password here.
-if groups "$USER" | grep -q '\bdocker\b'; then
-    # Permissions active
-    echo "Docker permissions: OK. Running as current user: $(whoami)."
-    $DOCKER_COMPOSE_CMD up -d
-else
-    # Permissions not yet active in this session (requires sudo on first run)
-    echo "User '$USER' is not recognized in the 'docker' group yet. Running with sudo."
-    sudo $DOCKER_COMPOSE_CMD up -d
-fi
+sudo docker compose up -d
 
 # --- 5. AUTO-START ON REBOOT (Cron job, commented out for optional use) ---
 # echo "--- 5. Setting up auto-start on reboot (using Cron)..."
