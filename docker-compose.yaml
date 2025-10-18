@@ -10,20 +10,22 @@ services:
     restart: unless-stopped
 
   luminaire-service:
-    image: nishanthambati/luminaire-service:v1.0
+    image: nishanthambati/luminaire-service:v1.1
     container_name: luminaire-service
     volumes:
       - ./config.yaml:/app/config.yaml
+      - ./logs:/app/logs
     environment:
       - TZ=Asia/Kolkata
     network_mode: host
     restart: unless-stopped
 
   scheduler-service:
-    image: nishanthambati/scheduler-service:v1.0
+    image: nishanthambati/scheduler-service:v1.1
     container_name: scheduler-service
     volumes:
       - ./config.yaml:/app/config.yaml
+      - ./logs:/app/logs
       - ./scenes:/app/scenes
     environment:
       - TZ=Asia/Kolkata
@@ -34,20 +36,22 @@ services:
     restart: unless-stopped
 
   monitoring-service:
-    image: nishanthambati/monitoring-service:v1.0
+    image: nishanthambati/monitoring-service:v1.1
     container_name: monitoring-service
     volumes:
       - ./config.yaml:/app/config.yaml
+      - ./logs:/app/logs
     environment:
       - TZ=Asia/Kolkata
     network_mode: host
     restart: unless-stopped
 
   api-service:
-    image: nishanthambati/api-service:v1.0
+    image: nishanthambati/api-service:v1.1
     container_name: api-service
     volumes:
       - ./config.yaml:/app/config.yaml
+      - ./logs:/app/logs
     environment:
       - TZ=Asia/Kolkata
     depends_on:
@@ -59,10 +63,11 @@ services:
     restart: unless-stopped
 
   websocket-service:
-    image: nishanthambati/websocket-service:v1.0
+    image: nishanthambati/websocket-service:v1.1
     container_name: websocket-service
     volumes:
       - ./config.yaml:/app/config.yaml
+      - ./logs:/app/logs
     environment:
       - TZ=Asia/Kolkata
     depends_on:
