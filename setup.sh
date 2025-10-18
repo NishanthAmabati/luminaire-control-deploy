@@ -10,7 +10,7 @@ set -u # Treat unset variables as errors
 # variables
 REPO_URL="https://github.com/nishanthamabati/luminaire-control-deploy.git"
 INSTALL_DIR="$HOME/luminaire-control-deploy"
-DOCKER_COMPOSE_CMD="docker compose" # Use modern 'docker compose' syntax
+DOCKER_COMPOSE_CMD="docker-compose"
 
 # system update & pre requisites
 echo "Updating system, installing prerequisites (git, curl, wget, docker)..."
