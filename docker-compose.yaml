@@ -78,7 +78,7 @@ services:
     restart: unless-stopped
 
   webapp:
-    image: nishanthambati/nginx-webapp:2.1
+    image: nishanthambati/nginx-webapp:2.0
     container_name: nginx-webapp
     depends_on:
       - websocket-service
