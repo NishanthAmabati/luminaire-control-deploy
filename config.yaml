@@ -1,12 +1,9 @@
-# Server Configuration
 server:
-  host: "0.0.0.0"
+  host: "luminaire-service"
   port: 5250
-  websocket_host: "0.0.0.0"
+  websocket_host: "luminaire-service"
   websocket_port: 5001
-#  max_connections: 350
 
-# Luminaire Operations Configuration
 luminaire_operations:
   min_cct: 3500
   max_cct: 6500
@@ -15,7 +12,6 @@ luminaire_operations:
   inactivity_threshold: 30
   send_timeout: 2.0
   max_retries: 3
-#  max_workers: 300
   scene_directory: "scenes"
   total_intervals: 8640
   scheduler_update_interval: 1.0
@@ -23,43 +19,37 @@ luminaire_operations:
   log_advanced_max_entries: 100
   cleanup_interval: 30
 
-# Logging Configuration
 logging:
   level: "INFO"
-  filename_template: "%Y-%m-%d%H%M%S.log"
+  filename_template: "%Y-%m-%d.log"
   rotation_when: "midnight"
   rotation_interval: 1
   rotation_backup_count: 7
 
-# Microservices Configuration
 microservices:
-  scheduler_port: 6666
-  device_port: 5555
-  monitoring_port: 7777
   luminaire_service:
-    host: "0.0.0.0"
-    port: 5555
+    host: "luminaire-service"
+    port: 8000
     log_level: "INFO"
   scheduler_service:
-    host: "0.0.0.0"
-    port: 6666
+    host: "scheduler-service"
+    port: 8000
     log_level: "INFO"
   monitoring_service:
-    host: "0.0.0.0"
-    port: 7777
+    host: "monitoring-service"
+    port: 8000
     log_level: "INFO"
   api_service:
-    host: "0.0.0.0"
-    port: 8888
+    host: "api-service"
+    port: 8000
     log_level: "info"
   websocket_service:
-    host: "0.0.0.0"
+    host: "websocket-service"
     port: 5001
     log_level: "INFO"
 
-# Redis Configuration
 redis:
-  host: "0.0.0.0"
+  host: "redis"
   port: 6379
   db: 0
   password: null
@@ -67,10 +57,8 @@ redis:
 api:
   broadcast_interval: 2
 
-# State Management
 state:
   file: "state.pkl"
 
-# Scheduler Configuration
 scheduler:
   timer_check_interval: 1
