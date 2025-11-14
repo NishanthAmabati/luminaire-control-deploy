@@ -2,63 +2,98 @@
 # setup.sh - Full setup and deployment of Luminaire Control on Raspberry Pi
 # Author: Yagnya Nishanth Ambati
 # Date: 2025-10-12
-# Revision: 2025-10-18 (Fixing Docker permissions)
+# Revision: 2025-11-14 (Improved idempotency, fixed docker-compose, env checks)
 
-set -e # Exit immediately if a command fails
-set -u # Treat unset variables as errors
+set -euo pipefail
 
-# variables
+LOG() { echo -e "\n\033[1;32m[SETUP]\033[0m $1"; }
+
 REPO_URL="https://github.com/nishanthamabati/luminaire-control-deploy.git"
 INSTALL_DIR="$HOME/luminaire-control-deploy"
 
-# system update & pre requisites
-echo "Updating system, installing prerequisites (git, curl, wget, docker)..."
+LOG "Updating system and installing prerequisites..."
 sudo apt update && sudo apt upgrade -y
-sudo apt install -y git curl wget docker.io docker-compose
 
-# docker setup
-echo "Setting up Docker permissions and service..."
+# Install docker and compose plugin (modern method)
+LOG "Installing Docker CE and Compose plugin..."
 
-# Enable and start Docker service
+sudo apt install -y \
+    ca-certificates \
+    curl \
+    gnupg \
+    git \
+    wget
+
+# Add Docker GPG key
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+sudo chmod a+r /etc/apt/keyrings/docker.gpg
+
+# Add Docker repository
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
+  https://download.docker.com/linux/debian \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" \
+  | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+LOG "Docker installed successfully."
+
+# Enable docker service
+LOG "Starting Docker service..."
 sudo systemctl enable docker
 sudo systemctl start docker
 
-# Add current user to the 'docker' group to run commands without sudo
-if ! getent group docker | grep -q "\b$USER\b"; then
-    echo "Adding user '$USER' to the 'docker' group. This requires a re-login to take effect."
+# Add user to docker group
+if ! id -nG "$USER" | grep -qw "docker"; then
+    LOG "Adding user '$USER' to docker group (requires logout afterward)..."
     sudo usermod -aG docker "$USER"
+    ADDED_TO_DOCKER_GROUP=1
+else
+    ADDED_TO_DOCKER_GROUP=0
 fi
 
-# clone repo
-echo "Cloning/pulling repository..."
+# Clone or update repo
+LOG "Preparing deployment directory at $INSTALL_DIR..."
+
 if [ -d "$INSTALL_DIR" ]; then
-    echo "Directory exists: $INSTALL_DIR. Pulling latest changes..."
+    LOG "Repository exists. Pulling latest updates..."
     cd "$INSTALL_DIR"
-    git pull
+    git reset --hard
+    git pull --rebase
 else
-    echo "Cloning repository to $INSTALL_DIR..."
+    LOG "Cloning repository..."
     git clone "$REPO_URL" "$INSTALL_DIR"
     cd "$INSTALL_DIR"
 fi
 
-# deploy services
-echo "Deploying services with Docker Compose..."
-mkdir -p ./logs ./scenes
-sudo chown -R 1000:1000 ./logs ./scenes
-sudo docker-compose up --detach
+# Make sure .env exists
+if [ ! -f ".env" ]; then
+    LOG "ERROR: Missing .env file! Create .env inside $INSTALL_DIR before running setup."
+    exit 1
+fi
 
-# --- 5. AUTO-START ON REBOOT (Cron job, commented out for optional use) ---
-# echo "--- 5. Setting up auto-start on reboot (using Cron)..."
-# CRON_CMD="@reboot cd $INSTALL_DIR && $DOCKER_COMPOSE_CMD up -d"
-# (crontab -l 2>/dev/null | grep -Fv "$INSTALL_DIR"; echo "$CRON_CMD") | crontab -
-# echo "Cron job added."
+LOG "Loading environment variables from .env..."
+set -o allexport
+source .env
+set +o allexport
 
-# success message
+LOG "Deploying containers using Docker Compose..."
+docker compose pull
+docker compose up -d --remove-orphans
+
 PI_IP=$(hostname -I | awk '{print $1}')
-echo
-echo "Deployment complete!"
-echo "Access the web app at: http://$PI_IP:8080 or http://localhost:8080"
 
-echo "IMPORTANT: Please **log out and log back in** for the new Docker permissions to take effect."
-echo "For future commands (like 'docker ps'), please **log out and log back in** for the new Docker permissions to take full effect."
-echo "If you don't re-login, you might see 'permission denied' errors.
+LOG "Deployment complete!"
+echo -e "\nWeb App Available At:"
+echo "  👉 http://$PI_IP:80"
+echo "  👉 http://localhost:80"
+
+if [ "$ADDED_TO_DOCKER_GROUP" -eq 1 ]; then
+    echo -e "\n⚠️  You were added to the Docker group."
+    echo "Please **log out and log back in** (or reboot) to activate permissions."
+fi
+
+echo -e "\nDone!"
