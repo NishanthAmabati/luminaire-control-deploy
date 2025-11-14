@@ -1,4 +1,4 @@
-version: '3.3'
+#version: "3.8"
 services:
   redis:
     image: redis:7.0
@@ -7,84 +7,171 @@ services:
       - redis-data:/data
     environment:
       - TZ=Asia/Kolkata
-    network_mode: host
-    restart: unless-stopped
-
-  luminaire-service:
-    image: nishanthambati/luminaire-service:2.1
-    container_name: luminaire-service
-    volumes:
-      - ./config.yaml:/app/config.yaml
-      - ./logs:/app/logs
-    environment:
-      - TZ=Asia/Kolkata
-    network_mode: host
-    restart: unless-stopped
-
-  scheduler-service:
-    image: nishanthambati/scheduler-service:2.1
-    container_name: scheduler-service
-    volumes:
-      - ./config.yaml:/app/config.yaml
-      - ./logs:/app/logs
-      - ./scenes:/app/scenes
-    environment:
-      - TZ=Asia/Kolkata
-    depends_on:
-      - redis
-      - luminaire-service
-    network_mode: host
-    restart: unless-stopped
-
-  monitoring-service:
-    image: nishanthambati/monitoring-service:2.1
-    container_name: monitoring-service
-    volumes:
-      - ./config.yaml:/app/config.yaml
-      - ./logs:/app/logs
-    environment:
-      - TZ=Asia/Kolkata
-    network_mode: host
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
     restart: unless-stopped
 
   api-service:
-    image: nishanthambati/api-service:2.1
-    container_name: api-service
-    volumes:
-      - ./config.yaml:/app/config.yaml
-      - ./logs:/app/logs
+    image: nishanthambati/api-service
+    container_name: $API_APP
     environment:
       - TZ=Asia/Kolkata
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+    ports:
+      - "$API_PORT:$API_PORT"
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://api-service:8000/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
     depends_on:
-      - redis
-      - scheduler-service
-      - luminaire-service
-      - monitoring-service
-    network_mode: host
-    restart: unless-stopped
+      luminaire-service:
+        condition: service_healthy
+      scheduler-service:
+        condition: service_healthy
+
+  luminaire-service:
+    image: nishanthambati/luminaire-service
+    container_name: $LUMINAIRE_APP
+    environment:
+      - TZ=Asia/Kolkata
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+    ports:
+      #- "$LUMINAIRE_PORT:$LUMINAIRE_PORT"
+      - "5250:5250"
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://luminaire-service:8000/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 3s
+    depends_on:
+        redis:
+          condition: service_healthy
+
+  scheduler-service:
+    image: nishanthambati/scheduler-service
+    container_name: $SCHEDULER_APP
+    environment:
+      - TZ=Asia/Kolkata
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+    #ports:
+    #  - "$SCHEDULER_PORT:$SCHEDULER_PORT"
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+      - ./scenes:/app/scenes:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://scheduler-service:8000/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 3s
+    depends_on:
+        redis:
+          condition: service_healthy
+
+  monitoring-service:
+    image: nishanthambati/monitoring-service
+    container_name: $MONITORING_APP
+    environment:
+      - TZ=Asia/Kolkata
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+    #ports:
+    #  - "$MONITORING_PORT:$MONITORING_PORT"
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://monitoring-service:8000/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 3s
+    depends_on:
+        redis:
+          condition: service_healthy
 
   websocket-service:
-    image: nishanthambati/websocket-service:2.1
-    container_name: websocket-service
-    volumes:
-      - ./config.yaml:/app/config.yaml
-      - ./logs:/app/logs
+    image: nishanthambati/websocket-service
+    container_name: $WEBSOCKET_APP
     environment:
       - TZ=Asia/Kolkata
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+    ports:
+      - "$WEBSOCKET_PORT:$WEBSOCKET_PORT"
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
     depends_on:
-      - redis
-      - api-service
-    network_mode: host
-    restart: unless-stopped
+        redis:
+          condition: service_healthy
 
   webapp:
     image: nishanthambati/nginx-webapp:2.0
-    container_name: nginx-webapp
-    depends_on:
-      - websocket-service
+    container_name: $WEBAPP
     ports:
-      - "8080:80"
+      - "$WEBAPP_PORT:80"
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://webapp/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 3s
+    depends_on:
+      websocket-service:
+        condition: service_started
+  
+  prometheus:
+    image: prom/prometheus:v2.48.1
+    container_name: prometheus
+    environment:
+      - TZ=Asia/Kolkata
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "9090:9090"
     restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+      luminaire-service:
+        condition: service_healthy
+      scheduler-service:
+        condition: service_healthy
+      monitoring-service:
+        condition: service_healthy
+      websocket-service:
+        condition: service_started
+
+  grafana:
+    image: grafana/grafana:10.4.2
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      prometheus:
+        condition: service_started
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-data:/var/lib/grafana
 
 volumes:
-  redis-data:
+   redis-data:
+   prometheus-data:
+   grafana-data:
