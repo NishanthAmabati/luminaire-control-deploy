@@ -24,7 +24,7 @@ sudo apt install -y \
     git \
     wget
 
-curl -fsSL https://get.docker.com -o get-docker.sh
+#curl -fsSL https://get.docker.com -o get-docker.sh
 #sudo sh get-docker.sh
 
 LOG "Docker installed successfully."
