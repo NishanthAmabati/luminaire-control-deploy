@@ -14,7 +14,7 @@ INSTALL_DIR="$HOME/luminaire-control-deploy"
 LOG "Updating system and installing prerequisites..."
 sudo apt update && sudo apt upgrade -y
 
-# Install docker and compose plugin (modern method)
+# Install docker and compose plugin
 LOG "Installing Docker CE and Compose plugin..."
 
 sudo apt install -y \
@@ -36,7 +36,7 @@ sudo systemctl start docker
 
 # Add user to docker group
 if ! id -nG "$USER" | grep -qw "docker"; then
-    LOG "Adding user '$USER' to docker group (requires logout afterward)..."
+    LOG "Adding user '$USER' to docker group..."
     sudo usermod -aG docker "$USER"
     ADDED_TO_DOCKER_GROUP=1
 else
@@ -74,14 +74,14 @@ docker compose up -d --remove-orphans
 
 PI_IP=$(hostname -I | awk '{print $1}')
 
-LOG "Deployment complete!"
-echo -e "\nWeb App Available At:"
-echo "  👉 http://$PI_IP:80"
-echo "  👉 http://localhost:80"
-
 if [ "$ADDED_TO_DOCKER_GROUP" -eq 1 ]; then
     echo -e "\n⚠️  You were added to the Docker group."
     echo "Please **log out and log back in** (or reboot) to activate permissions."
 fi
+
+LOG "Deployment complete!"
+echo -e "\nWeb App Available At:"
+echo "  👉 http://$PI_IP:80"
+echo "  👉 http://localhost:80"
 
 echo -e "\nDone!"
