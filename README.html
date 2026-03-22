@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Luminaire Setup Guide</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --card: #ffffff;
+      --text: #1f2a37;
+      --muted: #4b5563;
+      --accent: #0f766e;
+      --border: #d1d5db;
+      --warning: #fff7ed;
+      --warning-border: #fdba74;
+    }
+    body {
+      margin: 0;
+      font-family: "Noto Sans", "DejaVu Sans", sans-serif;
+      background: linear-gradient(180deg, #f0f9ff, var(--bg));
+      color: var(--text);
+    }
+    .wrap {
+      max-width: 860px;
+      margin: 24px auto;
+      padding: 0 16px 24px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
+    }
+    .note {
+      background: var(--warning);
+      border: 1px solid var(--warning-border);
+      padding: 12px;
+      border-radius: 8px;
+      margin: 1rem 0;
+    }
+    h1 { margin-top: 0; font-size: 1.6rem; }
+    h2 { margin-top: 1.4rem; font-size: 1.1rem; color: var(--accent); }
+    p, li { line-height: 1.5; }
+    code {
+      background: #eef2ff;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-family: "DejaVu Sans Mono", monospace;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>HCL Setup Guide (Raspberry Pi)</h1>
+      <p>This folder is ready to use. Do not rename or move files.</p>
+
+      <h2>First-Time Installation</h2>
+      <ol>
+        <li>Open Raspberry Pi <strong>File Manager</strong>.</li>
+        <li>Open the <code>luminaire-deploy</code> folder.</li>
+        <li>Right-click <code>install.sh</code>.</li>
+        <li>Click <strong>Run as Program</strong>.</li>
+        <li>Wait until installation finishes.</li>
+        <li>Open browser and go to <code>http://localhost/</code>.</li>
+      </ol>
+<div class="note"> If "Run as Program" isn't visible, right-click the file &rarr; <strong>Properties</strong> &rarr; <strong>Permissions</strong> &rarr; set <strong>Execute</strong> to <strong>Anyone</strong>.</div>
+      <h2>Daily Operations (File Manager)</h2>
+      <ul>
+        <li><strong>Start app:</strong> right-click <code>start.sh</code> &rarr; Run as Program</li>
+        <li><strong>Stop app:</strong> right-click <code>stop.sh</code> &rarr; Run as Program</li>
+        <li><strong>Update app:</strong> right-click <code>update.sh</code> &rarr; Run as Program</li>
+      </ul>
+
+      <h2>Adding New Scenes</h2>
+      <ol>
+        <li>Copy new scene files into <code>luminaire-deploy/scenes/</code>.</li>
+        <li>Right-click <code>restart.sh</code> &rarr; <strong>Run as Program</strong>.</li>
+      </ol>
+      <p><strong>Important:</strong> A restart is required after adding or changing scene files.</p>
+
+      <h2>Remote Access (Tailscale)</h2>
+      <ol>
+        <li>Right-click <code>install_tailscale.sh</code> &rarr; <strong>Run as Program</strong>.</li>
+        <li>Complete Tailscale sign-in if prompted.</li>
+      </ol>
+      <p>This sets up OpenSSH and a <code>tails</code> user (Default password: <code>tails@rpi</code>).</p>
+    </div>
+  </div>
+</body>
+</html>
